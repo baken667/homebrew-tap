@@ -1,0 +1,44 @@
+name: Audit formulae
+
+on:
+  pull_request:
+    paths:
+      - "Formula/**"
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: brew audit
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew --version
+
+      - name: Tap akenbarsbayev/audit-homebrew-formulae action
+        # Use the official brew audit action
+        uses: MaksimBashkirov/audit-homebrew-formulae-action@v1
+        with:
+          formulaPaths: |
+            Formula/envee.rb
+          githubAccessToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Manual audit
+        if: failure()  # fallback if action missing
+        run: |
+          brew audit --strict --new Formula/*.rb
+          for f in Formula/*.rb; do
+            echo "Installing $f"
+            brew install --build-from-source "$f" || brew install "$f"
+            echo "Testing $f"
+            brew test "$f"
+          done
