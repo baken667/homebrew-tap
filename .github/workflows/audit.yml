@@ -2,43 +2,50 @@ name: Audit formulae
 
 on:
   pull_request:
-    paths:
-      - "Formula/**"
-      - ".github/workflows/**"
   push:
     branches: [main]
+  schedule:
+    # Homebrew's audit rules change over time; catch that without a push.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   audit:
-    name: brew audit
+    name: brew audit, install and test
+    # arm64, matching the darwin_arm64 archive most users will install.
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Homebrew
-        run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          brew --version
+        # macOS runners ship Homebrew already; this only puts it on PATH and
+        # updates it. Re-running the install script (as this workflow used to)
+        # is slow and can fail outright.
+        uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Tap akenbarsbayev/audit-homebrew-formulae action
-        # Use the official brew audit action
-        uses: MaksimBashkirov/audit-homebrew-formulae-action@v1
-        with:
-          formulaPaths: |
-            Formula/envee.rb
-          githubAccessToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Manual audit
-        if: failure()  # fallback if action missing
+      - name: Detect formulae
+        id: detect
         run: |
-          brew audit --strict --new Formula/*.rb
+          shopt -s nullglob
+          files=(Formula/*.rb)
+          echo "count=${#files[@]}" >> "$GITHUB_OUTPUT"
+          echo "Found ${#files[@]} formula file(s)."
+
+      - name: Audit
+        if: steps.detect.outputs.count != '0'
+        # Deliberately NOT --new: that flag applies homebrew-core submission
+        # criteria (repository age, stars, forks) which a personal tap can
+        # never satisfy, so it would fail forever. --online is the part that
+        # matters here: it fetches the homepage and the release URLs.
+        run: brew audit --strict --online --formula Formula/*.rb
+
+      - name: Install and test
+        if: steps.detect.outputs.count != '0'
+        run: |
           for f in Formula/*.rb; do
-            echo "Installing $f"
-            brew install --build-from-source "$f" || brew install "$f"
-            echo "Testing $f"
-            brew test "$f"
+            brew install --formula "$f"
+            brew test --formula "$f"
           done
