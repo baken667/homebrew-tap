@@ -36,11 +36,27 @@ jobs:
 
       - name: Audit
         if: steps.detect.outputs.count != '0'
-        # Deliberately NOT --new: that flag applies homebrew-core submission
-        # criteria (repository age, stars, forks) which a personal tap can
-        # never satisfy, so it would fail forever. --online is the part that
-        # matters here: it fetches the homepage and the release URLs.
-        run: brew audit --strict --online --formula Formula/*.rb
+        # --online is the part that matters: it fetches the homepage and every
+        # release URL and verifies the checksums.
+        #
+        # NOT --new: that applies homebrew-core submission criteria (repository
+        # age, stars, forks) which a personal tap can never satisfy.
+        #
+        # --except=style,version: both categories fail on any GoReleaser-
+        # generated formula, for reasons inherent to the generator rather than
+        # defects in the formula. Verified against the real v0.1.1-rc.1 output:
+        #
+        #   style   - a multi-platform formula puts `def install` inside
+        #             `on_intel do` / `on_arm do` blocks, and rubocop's
+        #             Lint/NestedMethodDefinition rejects defining a method in
+        #             a block (4 occurrences, one per platform).
+        #   version - GoReleaser writes an explicit `version` field, which
+        #             Homebrew calls redundant because it can scan the version
+        #             out of the URL.
+        #
+        # Neither is fixable from this repo: the formula is overwritten on
+        # every release. `brew install` + `brew test` below are the real gate.
+        run: brew audit --online --except=style,version --formula Formula/*.rb
 
       - name: Install and test
         if: steps.detect.outputs.count != '0'
