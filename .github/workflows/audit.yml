@@ -18,7 +18,7 @@ jobs:
     # arm64, matching the darwin_arm64 archive most users will install.
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Homebrew
         # macOS runners ship Homebrew already; this only puts it on PATH and
