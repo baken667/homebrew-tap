@@ -5,13 +5,13 @@
 class Envee < Formula
   desc "Per-directory environment variable manager"
   homepage "https://github.com/baken667/envee"
-  version "0.1.2"
+  version "0.2.0"
   license "MIT"
 
   on_macos do
     on_intel do
-      url "https://github.com/baken667/envee/releases/download/v0.1.2/envee_0.1.2_darwin_amd64.tar.gz"
-      sha256 "335289ad609b4a85663ea130471ed3d101037ac6326638d85501a78e98ad17bf"
+      url "https://github.com/baken667/envee/releases/download/v0.2.0/envee_0.2.0_darwin_amd64.tar.gz"
+      sha256 "d92fdc54c2e8deb4145d8141e01d4b0c25eea5df8b5e9aa25b9e44923eb8b9ac"
 
       def install
         bin.install "envee"
@@ -23,8 +23,8 @@ class Envee < Formula
       end
     end
     on_arm do
-      url "https://github.com/baken667/envee/releases/download/v0.1.2/envee_0.1.2_darwin_arm64.tar.gz"
-      sha256 "3ad546b52810c369c7f83692fb0c0e27313411450dcaed7e340985ab731d89c2"
+      url "https://github.com/baken667/envee/releases/download/v0.2.0/envee_0.2.0_darwin_arm64.tar.gz"
+      sha256 "3e5d3f6197ee45b832efe85ee93f254d64d43aa19c1c0e46613a1a75a2a7c67b"
 
       def install
         bin.install "envee"
@@ -40,8 +40,8 @@ class Envee < Formula
   on_linux do
     on_intel do
       if Hardware::CPU.is_64_bit?
-        url "https://github.com/baken667/envee/releases/download/v0.1.2/envee_0.1.2_linux_amd64.tar.gz"
-        sha256 "6780e5f0d81fe88de6d4aef2f4a8f759d2f577c901200e8658352afffc96465a"
+        url "https://github.com/baken667/envee/releases/download/v0.2.0/envee_0.2.0_linux_amd64.tar.gz"
+        sha256 "479450e2fb6e229ed9fbc7d33567e73466a0a83750e1406345ab1ac48ed28307"
 
         def install
           bin.install "envee"
@@ -55,8 +55,8 @@ class Envee < Formula
     end
     on_arm do
       if Hardware::CPU.is_64_bit?
-        url "https://github.com/baken667/envee/releases/download/v0.1.2/envee_0.1.2_linux_arm64.tar.gz"
-        sha256 "1bad0cce54d2efa409de3f78be4a180ad3770c81d1930bdf6e6248cc21d50638"
+        url "https://github.com/baken667/envee/releases/download/v0.2.0/envee_0.2.0_linux_arm64.tar.gz"
+        sha256 "526425013a1032191754a6dfc3ceabb3b6237664d1bd216cfcc5b7a373da9d5f"
 
         def install
           bin.install "envee"
