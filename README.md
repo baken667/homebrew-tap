@@ -58,7 +58,7 @@ For a hand-written formula:
 
 1. Create `Formula/<name>.rb`.
 2. `brew audit --online --except=style,version --formula baken667/tap/<name>`
-3. `brew install --formula baken667/tap/<name> && brew test --formula baken667/tap/<name>`
+3. `brew install --formula baken667/tap/<name> && brew test baken667/tap/<name>`
 4. Commit and open a PR.
 
 Note the audit flags. `--new` is not used: it enforces homebrew-core

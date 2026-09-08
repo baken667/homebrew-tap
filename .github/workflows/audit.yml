@@ -90,6 +90,7 @@ jobs:
             brew install --formula "$name"
             echo "::endgroup::"
             echo "::group::brew test $name"
-            brew test --formula "$name"
+            # No --formula here: brew test does not accept it.
+            brew test "$name"
             echo "::endgroup::"
           done
