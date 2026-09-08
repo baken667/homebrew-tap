@@ -34,6 +34,23 @@ jobs:
           echo "count=${#files[@]}" >> "$GITHUB_OUTPUT"
           echo "Found ${#files[@]} formula file(s)."
 
+      - name: Register this checkout as the tap
+        if: steps.detect.outputs.count != '0'
+        # brew audit/install/test only accept formula NAMES -- passing a path
+        # is disabled outright ("Calling `brew audit [path ...]` is disabled").
+        # Naming a formula requires its tap to exist, so link the checkout into
+        # Homebrew's taps directory.
+        #
+        # A symlink rather than `brew tap baken667/tap`: tapping would fetch
+        # the published main branch, so a pull request would audit the formula
+        # it is replacing instead of the one it proposes.
+        run: |
+          tap_dir="$(brew --repository)/Library/Taps/baken667/homebrew-tap"
+          mkdir -p "$(dirname "$tap_dir")"
+          rm -rf "$tap_dir"
+          ln -s "$GITHUB_WORKSPACE" "$tap_dir"
+          brew tap | grep -q '^baken667/tap$' || { echo "tap did not register"; exit 1; }
+
       - name: Audit
         if: steps.detect.outputs.count != '0'
         # --online is the part that matters: it fetches the homepage and every
@@ -44,7 +61,7 @@ jobs:
         #
         # --except=style,version: both categories fail on any GoReleaser-
         # generated formula, for reasons inherent to the generator rather than
-        # defects in the formula. Verified against the real v0.1.1-rc.1 output:
+        # defects in the formula. Verified against the real published formula:
         #
         #   style   - a multi-platform formula puts `def install` inside
         #             `on_intel do` / `on_arm do` blocks, and rubocop's
@@ -56,12 +73,24 @@ jobs:
         #
         # Neither is fixable from this repo: the formula is overwritten on
         # every release. `brew install` + `brew test` below are the real gate.
-        run: brew audit --online --except=style,version --formula Formula/*.rb
+        run: |
+          for f in Formula/*.rb; do
+            name="baken667/tap/$(basename "$f" .rb)"
+            echo "::group::brew audit $name"
+            brew audit --online --except=style,version --formula "$name"
+            echo "::endgroup::"
+          done
 
       - name: Install and test
         if: steps.detect.outputs.count != '0'
         run: |
           for f in Formula/*.rb; do
-            brew install --formula "$f"
-            brew test --formula "$f"
+            name="baken667/tap/$(basename "$f" .rb)"
+            echo "::group::brew install $name"
+            brew install --formula "$name"
+            echo "::endgroup::"
+            echo "::group::brew test $name"
+            # No --formula here: brew test does not accept it.
+            brew test "$name"
+            echo "::endgroup::"
           done
