@@ -57,8 +57,8 @@ at this repository — nothing needs to be committed here.
 For a hand-written formula:
 
 1. Create `Formula/<name>.rb`.
-2. `brew audit --strict --online --formula Formula/<name>.rb`
-3. `brew install --formula Formula/<name>.rb && brew test --formula Formula/<name>.rb`
+2. `brew audit --online --except=style,version --formula baken667/tap/<name>`
+3. `brew install --formula baken667/tap/<name> && brew test --formula baken667/tap/<name>`
 4. Commit and open a PR.
 
 Note the audit flags. `--new` is not used: it enforces homebrew-core
@@ -71,9 +71,12 @@ is fixable here — the formula is regenerated on every release.
 
 ## Workflows
 
-- `.github/workflows/audit.yml` — runs `brew audit --strict --online`, then
-  installs and tests every formula, on each PR and push to `main` plus a
-  weekly schedule. It no-ops while `Formula/` is empty.
+- `.github/workflows/audit.yml` — audits, installs and tests every formula on
+  each PR and push to `main`, plus a weekly schedule. It no-ops while
+  `Formula/` is empty. The job links the checkout into Homebrew's taps
+  directory before running, because `brew` only accepts formula *names* and
+  naming one requires its tap to exist — and tapping from GitHub would audit
+  the published formula rather than the one a pull request proposes.
 
 ## License
 
