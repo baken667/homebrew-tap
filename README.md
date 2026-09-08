@@ -61,9 +61,13 @@ For a hand-written formula:
 3. `brew install --formula Formula/<name>.rb && brew test --formula Formula/<name>.rb`
 4. Commit and open a PR.
 
-Note that `brew audit --new` is not used here: it enforces homebrew-core
+Note the audit flags. `--new` is not used: it enforces homebrew-core
 submission criteria (repository age, stars, forks) that a personal tap cannot
-meet.
+meet. `--except=style,version` is needed for GoReleaser-generated formulae,
+which necessarily put `def install` inside per-platform blocks (rubocop
+rejects defining a method in a block) and emit an explicit `version` field
+(Homebrew calls it redundant with the one it can scan from the URL). Neither
+is fixable here — the formula is regenerated on every release.
 
 ## Workflows
 
