@@ -4,34 +4,35 @@
 class Envee < Formula
   desc "Per-directory environment variable manager"
   homepage "https://github.com/baken667/envee"
-  version "0.4.2"
+  version "0.4.3"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/baken667/envee/releases/download/v0.4.2/envee_0.4.2_darwin_arm64.tar.gz"
-      sha256 "a37ab1e273b069d29b2e358de85790922dc863003859727dc336059645525f1d"
+      url "https://github.com/baken667/envee/releases/download/v0.4.3/envee_0.4.3_darwin_arm64.tar.gz"
+      sha256 "df6ca27bfbfa6eba6bc4f069ef4f74777d92e627dfbc4c48417ea5812e5b5b40"
     end
     on_intel do
-      url "https://github.com/baken667/envee/releases/download/v0.4.2/envee_0.4.2_darwin_amd64.tar.gz"
-      sha256 "f96a149d7e049780784ff61aae5969098879f596ce843c5fd610ab8e66622578"
+      url "https://github.com/baken667/envee/releases/download/v0.4.3/envee_0.4.3_darwin_amd64.tar.gz"
+      sha256 "f757273794b3fea4f978205966248d384d311f9c35dab1ed6e33299b7061c8c3"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/baken667/envee/releases/download/v0.4.2/envee_0.4.2_linux_arm64.tar.gz"
-      sha256 "bd4267f191821b6c325d02623c202729d58ce17e3808b4de66ed50c73f66b5b4"
+      url "https://github.com/baken667/envee/releases/download/v0.4.3/envee_0.4.3_linux_arm64.tar.gz"
+      sha256 "ada6ad52c7aac9ac1701877c3a0b217abcac62b245c5ac1752552ab045f5c4e9"
     end
     on_intel do
-      url "https://github.com/baken667/envee/releases/download/v0.4.2/envee_0.4.2_linux_amd64.tar.gz"
-      sha256 "9ce3f92f1a0ce75b2783431dd526cb200bb4a7ed94ca800c8a18cb5500e59a99"
+      url "https://github.com/baken667/envee/releases/download/v0.4.3/envee_0.4.3_linux_amd64.tar.gz"
+      sha256 "e671aff9e06db3eae9ff122a17f544dd66edbc246ef4876a77791c7a9608c770"
     end
   end
 
   def install
     bin.install "envee"
     bin.install "envee-plugin-env"
+    bin.install "envee-plugin-infisical"
     generate_completions_from_executable(bin/"envee", "completion")
   end
 
@@ -50,5 +51,6 @@ class Envee < Formula
     assert_match "add-zsh-hook", shell_output("#{bin}/envee init zsh")
     assert_match "_envee_hook", shell_output("#{bin}/envee init fish")
     assert_match "\"name\":\"env\"", shell_output("#{bin}/envee-plugin-env metadata")
+    assert_match "\"name\":\"infisical\"", shell_output("#{bin}/envee-plugin-infisical metadata")
   end
 end
